@@ -25,13 +25,15 @@ def result():
     results_df["lr_expected_lost"] = results_df["lr_pred_proba"] * results_df["lgd"] * results_df["loan_amnt"]
     results_df["rfc_expected_lost"] = results_df["rfc_pred_proba"] * results_df["lgd"] * results_df["loan_amnt"]
     results_df["xgb_expected_lost"] = results_df["xgb_pred_proba"] * results_df["lgd"] * results_df["loan_amnt"]
-
+    results_df["total_loss"] = results_df["loan_status"] * results_df["lgd"] * results_df["loan_amnt"]
     sum_loan_amount = results_df["loan_amnt"].sum()
+    sum_total_loss = results_df["total_loss"].sum()
     sum_lr_expected_loss = results_df["lr_expected_lost"].sum()
     sum_rfc_expected_loss = results_df["rfc_expected_lost"].sum()
     sum_xgb_expected_loss = results_df["xgb_expected_lost"].sum()
 
     st.success(f"Total Loan Amount: ${sum_loan_amount:,.2f}")
+    st.success(f"Total Loss : ${sum_total_loss:,.2f}")
     st.success(f"Expected Loss By LR: ${sum_lr_expected_loss:,.2f}")
     st.success(f"Expected Loss By RFC: ${sum_rfc_expected_loss:,.2f}")
     st.success(f"Expected Loss By XGB: ${sum_xgb_expected_loss:,.2f}")
