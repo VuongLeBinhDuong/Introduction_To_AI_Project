@@ -6,7 +6,7 @@ import seaborn as sns
 
 import re
 
-process_df = pd.read_parquet("loan_status_processed_df2.parquet")
+process_df = pd.read_parquet("loan_status_processed_df3.parquet")
 
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_curve, roc_auc_score, confusion_matrix, classification_report, accuracy_score, recall_score, precision_score, f1_score
