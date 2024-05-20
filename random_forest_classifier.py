@@ -6,7 +6,7 @@ import seaborn as sns
 
 import re
 
-process_df = pd.read_parquet("loan_status_processed_df3.parquet")
+process_df = pd.read_parquet("loan_status_processed_df2.parquet")
 
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_curve, roc_auc_score, confusion_matrix, classification_report, accuracy_score, recall_score, precision_score, f1_score
@@ -28,5 +28,4 @@ rfc_model = RandomForestClassifier(n_estimators = 100, bootstrap = True, random_
 rfc_model.fit(X_train_resampled, y_train_resampled)
 
 import pickle
-pickle.dump(rfc_model,open('rfc_model.pkl','wb'))
-model=pickle.load(open('rfc_model.pkl','rb'))
+pickle.dump(rfc_model,open('rfc_model2.pkl','wb'))
