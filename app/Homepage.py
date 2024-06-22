@@ -6,8 +6,6 @@ st.set_page_config(page_title="Loan Status Information", layout="wide")
 # Creating a title
 st.title('Loan Status Information')
 
-st.snow()
-
 # Introduction text
 
 st.markdown("""

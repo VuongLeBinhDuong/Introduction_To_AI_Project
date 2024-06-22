@@ -12,7 +12,7 @@ st.set_page_config(
     page_title="Model Assessment",
 )
 
-def my_classification_report(y_test, y_proba_preds, labels={0:"Non-Default", 1:"Default"}, threshold=0.5):
+def my_classification_report(y_test, y_proba_preds, labels={0:"Non-Default", 1:"Default"}, threshold=0.7):
     
     y_preds = np.where(y_proba_preds >= threshold, 1, 0)
     
@@ -62,9 +62,11 @@ def main():
     st.title("Loan Status Expectation")
     st.header("Model Assessment")
     results_df = pd.read_parquet("data_results.parquet")
-    lr = my_classification_report(results_df['loan_status'], results_df['lr_pred_proba'], threshold=0.7)
-    rfc = my_classification_report(results_df['loan_status'], results_df['rfc_pred_proba'], threshold=0.7)
-    xgb = my_classification_report(results_df['loan_status'], results_df['xgb_pred_proba'], threshold=0.7)
+    lr = my_classification_report(results_df['loan_status'], results_df['lr_pred_proba'])
+    rfc = my_classification_report(results_df['loan_status'], results_df['rfc_pred_proba'])
+    xgb = my_classification_report(results_df['loan_status'], results_df['xgb_pred_proba'])
+    tabnet = my_classification_report(results_df['loan_status'], results_df['tabnet_pred_proba'])
+    catboost = my_classification_report(results_df['loan_status'], results_df['catboost_pred_proba'])
     st.write("#####")
     st.subheader("Logistic Regression")
     st.write("Precision: " + str(lr[0]) + "%")
@@ -81,17 +83,31 @@ def main():
     st.write("Recall: " + str(xgb[1]) + "%")
     st.write("F1 Score: " + str(xgb[2]) + "%")
     st.write("Accuracy: " + str(xgb[3]) + "%")
+    st.subheader("Tabnet")
+    st.write("Precision: " + str(tabnet[0]) + "%")
+    st.write("Recall: " + str(tabnet[1]) + "%")
+    st.write("F1 Score: " + str(tabnet[2]) + "%")
+    st.write("Accuracy: " + str(tabnet[3]) + "%")
+    st.subheader("Catboost")
+    st.write("Precision: " + str(catboost[0]) + "%")
+    st.write("Recall: " + str(catboost[1]) + "%")
+    st.write("F1 Score: " + str(catboost[2]) + "%")
+    st.write("Accuracy: " + str(catboost[3]) + "%")
     
     dict_names = {
-    "lr_pred_proba": "Logistic Regression",
-    "rfc_pred_proba": "Random Forest Classifier",
-    "xgb_pred_proba": "XGBoost Classifier"
+        "lr_pred_proba": "Logistic Regression",
+        "rfc_pred_proba": "Random Forest Classifier",
+        "xgb_pred_proba": "XGBoost Classifier",
+        "tabnet_pred_proba": "Tabnet Classifier",
+        "catboost_pred_proba": "Catboost Classifier"
     }
 
     colors = {
         "lr_pred_proba": "#FF8C00",
         "rfc_pred_proba": "#9400D3",
-        "xgb_pred_proba": "#2E8B57"
+        "xgb_pred_proba": "#2E8B57",
+        "tabnet_pred_proba": "#FF5733",
+        "catboost_pred_proba": "#1E90FF"
     }
     st.write("######")
     st.subheader("ROC Chart")

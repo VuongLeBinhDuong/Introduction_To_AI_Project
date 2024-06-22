@@ -4,8 +4,10 @@ import streamlit.web.cli as stcli
 import time
 
 lr_model=pickle.load(open('lr_model.pkl','rb'))
-rfc_model=pickle.load(open('rfc_model.pkl','rb'))
+#rfc_model=pickle.load(open('rfc_model.pkl','rb'))
 xgb_model=pickle.load(open('xgb_model.pkl','rb'))
+tabnet_model = pickle.load(open('tabnet_model.pkl','rb'))
+catboost_model = pickle.load(open('catboost_model.pkl','rb'))
 
 st.set_page_config(
     page_title="Predict Probability",
@@ -14,7 +16,7 @@ st.set_page_config(
 import pandas as pd
 
 def preprocess_input(loan_amnt, int_rate, emp_length, annual_inc, dti, pub_rec_bankruptcies,
-                     chargeoff_within_12_mths, term, house_ownership, purpose, app_type):
+                     chargeoff_within_12_mths, month_cr_history, term, house_ownership, purpose, app_type):
     data = {
         'loan_amnt': [loan_amnt],
         'int_rate': [int_rate],
@@ -23,6 +25,7 @@ def preprocess_input(loan_amnt, int_rate, emp_length, annual_inc, dti, pub_rec_b
         'dti': [dti],
         'pub_rec_bankruptcies': [pub_rec_bankruptcies],
         'chargeoff_within_12_mths': [chargeoff_within_12_mths],
+        "month_cr_history": [month_cr_history],
         'term_36_months': [1 if term == '36 months' else 0],
         'term_60_months': [1 if term == '60 months' else 0],
         'home_ownership_ANY': [1 if house_ownership == 'Any' else 0],
@@ -58,7 +61,7 @@ def submit(prediction):
 def main():
     st.title("Loan Status Expectation")
     st.header("Predict the probability of successfully repay")
-    activities=['Logistic Regression','Random Forest Classifier', 'XGBoost']
+    activities=['Logistic Regression','Random Forest Classifier', 'XGBoost', "Tabnet", "CatBoost"]
     option=st.sidebar.selectbox('Which model would you like to use?',activities)
     st.subheader(option)
     loan_amnt=st.number_input('Loan amount: ',value=None, step=1.,format="%.2f")
@@ -68,6 +71,7 @@ def main():
     dti=st.number_input('Debt-to-income ratio: ', value=None,step=1.,format="%.2f")
     pub_rec_bankruptcies=st.number_input('Number of public record bankruptcies: ', value=None,step=1.,format="%.2f")
     chargeoff_within_12_mths=st.number_input('Charge-offs within 12 months:', value=None,step=1.,format="%.2f")
+    month_cr_history = st.number_input('Month Credit History: ', value=None,step=1.,format="%.2f")
     term = st.selectbox(
     'Term: ',
     ('36 months', '60 months'),
@@ -86,7 +90,7 @@ def main():
     index=None)
 
     inputs = preprocess_input(loan_amnt, int_rate, emp_length, annual_inc, dti, pub_rec_bankruptcies,
-                                  chargeoff_within_12_mths, term, house_ownership, purpose, app_type)
+                                  chargeoff_within_12_mths, month_cr_history, term, house_ownership, purpose, app_type)
     if st.button('Submit'):
         progress_text = "Operation in progress. Please wait."
         my_bar = st.progress(0, text=progress_text)
@@ -100,11 +104,21 @@ def main():
                 st.success("The probability that the person can not pay loan: " + submit(lr_model.predict_proba(inputs)) + "%")
             else:
                 st.error("The probability that the person can not pay loan: " + submit(lr_model.predict_proba(inputs)) + "%")
-        elif option=='Random Forest Classifier':
-            if (float(submit(rfc_model.predict_proba(inputs))) < 70):
-                st.success("The probability that the person can not pay loan: " + submit(rfc_model.predict_proba(inputs)) + "%")
+        # elif option=='Random Forest Classifier':
+            # if (float(submit(rfc_model.predict_proba(inputs))) < 70):
+            #     st.success("The probability that the person can not pay loan: " + submit(rfc_model.predict_proba(inputs)) + "%")
+            # else:
+            #     st.error("The probability that the person can not pay loan: " + submit(rfc_model.predict_proba(inputs)) + "%")
+        elif option=='Tabnet':
+            if (float(submit(tabnet_model.predict_proba(inputs.values))) < 70):
+                st.success("The probability that the person can not pay loan: " + submit(tabnet_model.predict_proba(inputs.values)) + "%")
             else:
-                st.error("The probability that the person can not pay loan: " + submit(rfc_model.predict_proba(inputs)) + "%")
+                st.error("The probability that the person can not pay loan: " + submit(tabnet_model.predict_proba(inputs.values)) + "%")
+        elif option=='CatBoost':
+            if (float(submit(catboost_model.predict_proba(inputs.astype(int, errors='ignore')))) < 70):
+                st.success("The probability that the person can not pay loan: " + submit(catboost_model.predict_proba(inputs.astype(int, errors='ignore'))) + "%")
+            else:
+                st.error("The probability that the person can not pay loan: " + submit(catboost_model.predict_proba(inputs.astype(int, errors='ignore'))) + "%")   
         else:
             if (float(submit(xgb_model.predict_proba(inputs))) < 70):
                 st.success("The probability that the person can not pay loan: " + submit(xgb_model.predict_proba(inputs)) + "%")
